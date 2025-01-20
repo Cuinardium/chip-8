@@ -1,24 +1,27 @@
 const std = @import("std");
+const video = @import("./video/sdl.zig").SDLVideo;
+
+// 60 hz => 1 loop per 16 ms?
+const SLEEP_WAIT = 16 * 1000 * 1000;
 
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    // Initialize video
+    video.createWindow();
+    defer video.destroyWindow();
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    // Cycle
+    var cycle = true;
+    while (cycle) {
 
-    try bw.flush(); // don't forget to flush!
-}
+        // TODO: cpu cycle
+        // cpu.cycle()
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+        cycle = video.handleEvents();
+
+        video.render();
+
+        // sleep
+        std.time.sleep(SLEEP_WAIT);
+    }
 }
